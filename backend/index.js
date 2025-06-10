@@ -16,6 +16,7 @@ app.use(cors({
     credentials: true
 }))
 app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 
 // Routes
@@ -25,6 +26,9 @@ app.use("/api/user", userRouter)
 // Error handling middleware
 app.use((err, req, res, next) => {
     console.error("Server error:", err)
+    if (err.name === 'MulterError') {
+        return res.status(400).json({ message: "File upload error: " + err.message })
+    }
     res.status(500).json({ message: "Internal server error" })
 })
 
