@@ -5,7 +5,7 @@ import { MdKeyboardBackspace } from "react-icons/md";
 import { useNavigate } from 'react-router-dom';
 function Customize2() {
     const {userData,backendImage,selectedImage,serverUrl,setUserData}=useContext(userDataContext)
-    const [assistantName,setAssistantName]=useState(userData?.AssistantName || "")
+    const [assistantName,setAssistantName]=useState(userData?.assistantName || "")
     const [loading,setLoading]=useState(false)
     const navigate=useNavigate()
 
@@ -15,12 +15,17 @@ function Customize2() {
             let formData=new FormData()
             formData.append("assistantName",assistantName)
             if(backendImage){
-                 formData.append("assistantImage",backendImage)
-            }else{
+                formData.append("assistantImage",backendImage)
+            }else if(selectedImage){
                 formData.append("imageUrl",selectedImage)
             }
-            const result=await axios.post(`${serverUrl}/api/user/update`,formData,{withCredentials:true})
-setLoading(false)
+            const result=await axios.post(`${serverUrl}/api/user/update`,formData,{
+                withCredentials:true,
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            })
+            setLoading(false)
             console.log(result.data)
             setUserData(result.data)
             navigate("/")
