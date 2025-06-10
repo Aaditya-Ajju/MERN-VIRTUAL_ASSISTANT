@@ -10,28 +10,37 @@ function Customize2() {
     const navigate=useNavigate()
 
     const handleUpdateAssistant=async ()=>{
+        if (!assistantName.trim()) {
+            console.error("Assistant name is required")
+            return
+        }
+
         setLoading(true)
         try {
             let formData=new FormData()
-            formData.append("assistantName",assistantName)
+            formData.append("assistantName", assistantName.trim())
+            
             if(backendImage){
-                formData.append("assistantImage",backendImage)
+                formData.append("assistantImage", backendImage)
             }else if(selectedImage){
-                formData.append("imageUrl",selectedImage)
+                formData.append("imageUrl", selectedImage)
             }
-            const result=await axios.post(`${serverUrl}/api/user/update`,formData,{
-                withCredentials:true,
+
+            const result=await axios.post(`${serverUrl}/api/user/update`, formData, {
+                withCredentials: true,
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
             })
-            setLoading(false)
-            console.log(result.data)
-            setUserData(result.data)
-            navigate("/")
+
+            if (result.data) {
+                setUserData(result.data)
+                navigate("/")
+            }
         } catch (error) {
+            console.error("Update error:", error.response?.data?.message || error.message)
+        } finally {
             setLoading(false)
-            console.log(error)
         }
     }
 
