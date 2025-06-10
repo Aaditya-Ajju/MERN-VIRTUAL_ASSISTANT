@@ -10,9 +10,11 @@ function UserContext({children}) {
     const [backendImage, setBackendImage] = useState(null)
     const [selectedImage, setSelectedImage] = useState(null)
     const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
 
     const handleCurrentUser = async () => {
         try {
+            setError(null)
             const result = await axios.get(`${serverUrl}/api/user/current`, {
                 withCredentials: true,
                 headers: {
@@ -23,6 +25,7 @@ function UserContext({children}) {
         } catch (error) {
             console.error("Auth error:", error.response?.data?.message || error.message)
             setUserData(null)
+            setError(error.response?.data?.message || "Authentication failed")
         } finally {
             setLoading(false)
         }
@@ -30,6 +33,7 @@ function UserContext({children}) {
 
     const getGeminiResponse = async (command) => {
         try {
+            setError(null)
             const result = await axios.post(
                 `${serverUrl}/api/user/asktoassistant`,
                 { command },
@@ -43,6 +47,7 @@ function UserContext({children}) {
             return result.data
         } catch (error) {
             console.error("Gemini API error:", error.response?.data?.message || error.message)
+            setError(error.response?.data?.message || "Failed to get response")
             throw error
         }
     }
@@ -62,7 +67,9 @@ function UserContext({children}) {
         selectedImage,
         setSelectedImage,
         getGeminiResponse,
-        loading
+        loading,
+        error,
+        handleCurrentUser
     }
 
     return (
